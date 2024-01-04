@@ -43,7 +43,7 @@ func Execute(config *viper.Viper) []model.Mower {
 		})
 
 		// Process the mower and print its final position
-		result = append(result, processMower(lawn, initialPosition, instructions))
+		result = append(result, ProcessMower(lawn, initialPosition, instructions))
 	}
 	return result
 }
@@ -74,8 +74,8 @@ func openInputFile(config *viper.Viper) (*os.File, []model.Mower, bool) {
 	return file, nil, false
 }
 
-// processMower process the instructions for a mower on the given lawn.
-func processMower(lawn model.Lawn, initialPosition string, instructions string) model.Mower {
+// ProcessMower process the instructions for a mower on the given lawn.
+func ProcessMower(lawn model.Lawn, initialPosition string, instructions string) model.Mower {
 	mower := model.Mower{Orientation: initialPosition[4:5]} // Initialize the mower with the Orientation
 	fmt.Sscanf(initialPosition, "%d %d", &mower.X, &mower.Y)
 
@@ -85,7 +85,7 @@ func processMower(lawn model.Lawn, initialPosition string, instructions string) 
 		if mower.X < 0 || mower.X > lawn.Width || mower.Y < 0 || mower.Y > lawn.Height {
 			// If outside the lawn, revert the move and break the loop
 			mower.MoveBackward()
-			break
+			continue
 		}
 	}
 
