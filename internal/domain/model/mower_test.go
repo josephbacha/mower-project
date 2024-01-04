@@ -2,7 +2,7 @@ package model
 
 import "testing"
 
-// TestMowerMovement test the mower movement logic
+// TestMowerMovement Boundary testing to test the mower movements
 func TestMowerMovement(t *testing.T) {
 	// Test the rotation to the right
 	m := Mower{0, 0, "N"}
