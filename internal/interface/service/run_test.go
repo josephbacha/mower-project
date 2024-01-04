@@ -22,12 +22,7 @@ func TestExecute(t *testing.T) {
 	if err != nil {
 		t.Errorf("Error occurred %v", err.Error())
 	}
-	defer func(tempFile *os.File) {
-		err := tempFile.Close()
-		if err != nil {
-			t.Errorf("Error while closing temp file: " + err.Error())
-		}
-	}(tempFile)
+	defer tempFile.Close()
 
 	// Set up the Viper configuration
 	config := viper.New()
@@ -67,16 +62,11 @@ func TestExecuteError(t *testing.T) {
 	// Create a temporary file with test data
 	inputData := "-1 3\n1 2 N\nLFLFLFLFF\n3 3 E\nFFRFFRFRRF\n"
 	tempFile, err := createTempFile(t, tempFileName, inputData)
-	if err == nil {
+	if err != nil {
 		t.Errorf("Error while writing in temporary file: " + err.Error())
 	}
 
-	defer func(tempFile *os.File) {
-		err := tempFile.Close()
-		if err != nil {
-			t.Errorf("Error while closing temp file: " + err.Error())
-		}
-	}(tempFile)
+	defer tempFile.Close()
 
 	// Set up the Viper configuration
 	config := viper.New()
@@ -100,12 +90,7 @@ func createTempFile(t *testing.T, filename, content string) (*os.File, error) {
 	if err != nil {
 		t.Errorf("Error creating temporary file: " + err.Error())
 	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			t.Errorf("Error while closing file: " + err.Error())
-		}
-	}(file)
+	defer file.Close()
 
 	_, err = file.WriteString(content)
 	if err != nil {
