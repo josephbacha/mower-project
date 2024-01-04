@@ -14,7 +14,10 @@ const (
 // Serve main application execution
 func Serve() {
 	config := initConfig()
-	result := service.Execute(config)
+	result, err := service.Execute(config)
+	if err != nil {
+		log.Error("Error occurred: ", err.Error())
+	}
 	if result == nil {
 		log.Error("file is empty")
 		return
