@@ -18,8 +18,16 @@ const tempFileName = "test_input.txt"
 func TestExecute(t *testing.T) {
 	// Create a temporary file with test data
 	inputData := "5 5\n1 2 N\nLFLFLFLFF\n3 3 E\nFFRFFRFRRF\n"
-	tempFile := createTempFile(t, tempFileName, inputData)
-	defer tempFile.Close()
+	tempFile, err := createTempFile(t, tempFileName, inputData)
+	if err != nil {
+		t.Errorf("Error occurred %v", err.Error())
+	}
+	defer func(tempFile *os.File) {
+		err := tempFile.Close()
+		if err != nil {
+			t.Errorf("Error while closing temp file: " + err.Error())
+		}
+	}(tempFile)
 
 	// Set up the Viper configuration
 	config := viper.New()
@@ -58,15 +66,24 @@ func TestExecute(t *testing.T) {
 func TestExecuteError(t *testing.T) {
 	// Create a temporary file with test data
 	inputData := "-1 3\n1 2 N\nLFLFLFLFF\n3 3 E\nFFRFFRFRRF\n"
-	tempFile := createTempFile(t, tempFileName, inputData)
-	defer tempFile.Close()
+	tempFile, err := createTempFile(t, tempFileName, inputData)
+	if err == nil {
+		t.Errorf("Error while writing in temporary file: " + err.Error())
+	}
+
+	defer func(tempFile *os.File) {
+		err := tempFile.Close()
+		if err != nil {
+			t.Errorf("Error while closing temp file: " + err.Error())
+		}
+	}(tempFile)
 
 	// Set up the Viper configuration
 	config := viper.New()
 	config.Set("filePath", "/"+tempFileName)
 
 	// Call the Execute function with the test configuration
-	_, err := service.Execute(config)
+	_, err = service.Execute(config)
 
 	// Expected error return
 	expectedError := errors.New("WRONG LAWN DIMENSIONS")
@@ -78,19 +95,25 @@ func TestExecuteError(t *testing.T) {
 }
 
 // createTempFile helper function to create a temporary file for testing
-func createTempFile(t *testing.T, filename, content string) *os.File {
+func createTempFile(t *testing.T, filename, content string) (*os.File, error) {
 	file, err := os.Create(filename)
 	if err != nil {
 		t.Errorf("Error creating temporary file: " + err.Error())
 	}
-	defer file.Close()
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			t.Errorf("Error while closing file: " + err.Error())
+		}
+	}(file)
 
 	_, err = file.WriteString(content)
 	if err != nil {
 		t.Errorf("Error while writing in temporary file: " + err.Error())
+		return nil, err
 	}
 
-	return file
+	return file, nil
 }
 
 // deleteTempFile helper function to delete the temporary testing file
